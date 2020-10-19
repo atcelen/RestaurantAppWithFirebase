@@ -1,0 +1,19 @@
+﻿Name ,Price,Cooking Time,Category,Discount,Fotos
+Margherita Pizza,17,45,Pizza,0,margherita_pizza
+Meat Pizza,22,45,Pizza,0,meat_pizza
+BBQ Chicken Pizza,20,45,Pizza,15,bbq_chicken_pizza
+Kebap Pizza,22,45,Pizza,10,kebab_pizza
+Hamburger,10,15,Hamburger,25,hamburger
+Chicken Burger,12,15,Hamburger,25,chicken_burger
+Chili Long Burger,15,20,Hamburger,25,chili_long_burger
+Spaghetti Bolognese,11,10,Pasta,0,spaghetti_bolognese
+Penne Arabiata,13,10,Pasta,5,penne_arabiata
+Mac and Cheese,14,20,Pasta,10,mac_and_cheese
+Kebab Fladenbrot,10,5,Kebab,0,kebab_fladenbrot
+Donerbox,10,5,Kebab,0,donerbox
+Milkshake,5,5,Dessert ,5,milkshake
+Souffle,7,20,Dessert ,5,souffle
+Eis,2,5,Dessert ,10,eis
+Cola,3,0,Drink,0,cola
+Eistee,3,0,Drink,0,eistee
+Mineral Wasser,2,0,Drink,0,mineral_wasser

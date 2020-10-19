@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "672409276435",
+    "firebase_url": "https://restaurantapp-69515.firebaseio.com",
+    "project_id": "restaurantapp-69515",
+    "storage_bucket": "restaurantapp-69515.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:672409276435:android:afa8a02df413d835892fe6",
+        "android_client_info": {
+          "package_name": "com.atacelen.restaurantapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "672409276435-9t2c9vfdaosj45i9t83ch375sua3njoo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA60KoWtaE4TtEEn3xwuHuvShhJiOUNwC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "672409276435-9t2c9vfdaosj45i9t83ch375sua3njoo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
