@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,7 +34,7 @@ public class DetailedItemActivity extends AppCompatActivity {
     private StorageReference storageReference;
     private FirebaseFirestore firebaseFirestore;
     private FirebaseAuth firebaseAuth;
-    private
+    private SQLiteDatabase database;
 
     ImageView imageView;
     TextView foodNameText, foodPriceText, foodCookingTimeText, foodCategoryText, foodDiscountText;
@@ -75,6 +77,8 @@ public class DetailedItemActivity extends AppCompatActivity {
     }
 
     public void addToFavourites(View view) {
+        offlineCache();
+
         final Uri uri = getImageUriFromBitmap();
         storageReference.child("Images").child(foodName + ".jpg").putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -90,6 +94,9 @@ public class DetailedItemActivity extends AppCompatActivity {
                 foodData.put("foodCategory", foodCategory);
                 foodData.put("foodDiscount", foodDiscount);
                 foodData.put("downloadUrl", downloadUrl);
+
+
+
 
 
                 firebaseFirestore.collection("Users").document(firebaseUser.getEmail()).collection("Favourites").add(foodData).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -112,6 +119,36 @@ public class DetailedItemActivity extends AppCompatActivity {
                 Toast.makeText(DetailedItemActivity.this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }
         });
+
+
+    }
+
+    public void offlineCache(){
+
+        try {
+
+            database = this.openOrCreateDatabase("FavFoods",MODE_PRIVATE,null);
+            database.execSQL("CREATE TABLE IF NOT EXISTS FavFoods (id INTEGER PRIMARY KEY,foodName VARCHAR, foodPrice VARCHAR, foodCookingTime VARCHAR, " +
+                    "foodCategory VARCHAR, foodDiscount VARCHAR, foodImage BLOB)");
+
+
+            String sqlString = "INSERT INTO FavFoods (foodName, foodPrice, foodCookingTime, foodCategory, foodDiscount, foodImage) VALUES (?, ?, ?, ?, ?, ?)";
+            SQLiteStatement sqLiteStatement = database.compileStatement(sqlString);
+            sqLiteStatement.bindString(1,foodName);
+            sqLiteStatement.bindString(2,foodPrice);
+            sqLiteStatement.bindString(3,foodCookingTime);
+            sqLiteStatement.bindString(4,foodCategory);
+            sqLiteStatement.bindString(5,foodDiscount);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            byte[] bytes = outputStream.toByteArray();
+            sqLiteStatement.bindBlob(6,bytes);
+            sqLiteStatement.execute();
+
+
+        } catch (Exception e) {
+
+        }
     }
 
     public Uri getImageUriFromBitmap() {

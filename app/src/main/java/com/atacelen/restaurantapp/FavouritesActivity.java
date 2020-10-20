@@ -5,8 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -50,27 +57,41 @@ public class FavouritesActivity extends AppCompatActivity {
         foodDiscountFromFB = new ArrayList<>();
         foodImagesFromFB = new ArrayList<>();
 
+
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         menuRecyclerAdapter = new MenuRecyclerAdapter(foodNameFromFB, foodPriceFromFB, foodCookingTimeFromFB, foodCategoryFromFB, foodDiscountFromFB, foodImagesFromFB);
         recyclerView.setAdapter(menuRecyclerAdapter);
 
-        getDataFromFirestore();
+        if(isNetworkAvailable()){
+            getDataFromFirestore();
+            System.out.println("from Firestore...");
+        } else {
+            getDataFromSQLDatabase();
+            System.out.println("from SQL Database...");
+        }
+
+
+
+
+
 
     }
 
-    public void getDataFromFirestore(){
+    public void getDataFromFirestore() {
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        System.out.println(firebaseUser.getEmail());
         CollectionReference collectionReference = firebaseFirestore.collection("Users").document(firebaseUser.getEmail()).collection("Favourites");
         collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(error != null){
+                if (error != null) {
                     Toast.makeText(FavouritesActivity.this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                 }
 
-                if(value != null){
-                    for(DocumentSnapshot documentSnapshot : value.getDocuments()) {
-                        Map<String,Object> data = documentSnapshot.getData();
+                if (value != null) {
+                    for (DocumentSnapshot documentSnapshot : value.getDocuments()) {
+                        Map<String, Object> data = documentSnapshot.getData();
 
                         String foodName = (String) data.get("foodName");
                         String foodPrice = (String) data.get("foodPrice");
@@ -110,4 +131,47 @@ public class FavouritesActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
+
+    public void getDataFromSQLDatabase(){
+        try {
+            SQLiteDatabase database = this.openOrCreateDatabase("FavFoods", MODE_PRIVATE, null);
+
+            Cursor cursor = database.rawQuery("SELECT * FROM FavFoods", null);
+            int nameIx = cursor.getColumnIndex("foodName");
+            int priceIx = cursor.getColumnIndex("foodPrice");
+            int cookingTimeIx = cursor.getColumnIndex("foodCookingTime");
+            int categoryIx = cursor.getColumnIndex("foodCategory");
+            int discountIx = cursor.getColumnIndex("foodDiscount");
+            int imageIx = cursor.getColumnIndex("foodImage");
+
+            while (cursor.moveToNext()) {
+                foodNameFromFB.add(cursor.getString(nameIx));
+                foodPriceFromFB.add(cursor.getString(priceIx));
+                foodCookingTimeFromFB.add(cursor.getString(cookingTimeIx));
+                foodCategoryFromFB.add(cursor.getString(categoryIx));
+                foodDiscountFromFB.add(cursor.getString(discountIx));
+                Bitmap bitmap = BitmapFactory.decodeByteArray(cursor.getBlob(imageIx), 0, cursor.getBlob(imageIx).length);
+                foodImagesFromFB.add(bitmap);
+                menuRecyclerAdapter.notifyDataSetChanged();
+            }
+
+            cursor.close();
+
+        } catch (Exception e) {
+            System.out.println("catch");
+            e.printStackTrace();
+        }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+
 }
