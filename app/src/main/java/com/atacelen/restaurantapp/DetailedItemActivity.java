@@ -80,13 +80,15 @@ public class DetailedItemActivity extends AppCompatActivity {
     }
 
     public void addToFavourites(View view) {
-        offlineCache();
+        if(isNetworkAvailable()){
+            offlineCache();
+        } else {
+            Toast.makeText(DetailedItemActivity.this, "Cannot add to favourites without internet connection!", Toast.LENGTH_LONG).show();
+        }
         saveToFB();
     }
 
     public void offlineCache(){
-
-        if(isNetworkAvailable()) {
             try {
 
                 database = this.openOrCreateDatabase("FavFoods",MODE_PRIVATE,null);
@@ -111,9 +113,7 @@ public class DetailedItemActivity extends AppCompatActivity {
             } catch (Exception e) {
 
             }
-        } else {
-            Toast.makeText(DetailedItemActivity.this, "Cannot add to favourites without internet connection!", Toast.LENGTH_LONG).show();
-        }
+
 
 
     }
