@@ -3,10 +3,13 @@ package com.atacelen.restaurantapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -83,30 +86,36 @@ public class DetailedItemActivity extends AppCompatActivity {
 
     public void offlineCache(){
 
-        try {
+        if(isNetworkAvailable()) {
+            try {
 
-            database = this.openOrCreateDatabase("FavFoods",MODE_PRIVATE,null);
-            database.execSQL("CREATE TABLE IF NOT EXISTS FavFoods (id INTEGER PRIMARY KEY,foodName VARCHAR, foodPrice VARCHAR, foodCookingTime VARCHAR, " +
-                    "foodCategory VARCHAR, foodDiscount VARCHAR, foodImage BLOB)");
-
-
-            String sqlString = "INSERT INTO FavFoods (foodName, foodPrice, foodCookingTime, foodCategory, foodDiscount, foodImage) VALUES (?, ?, ?, ?, ?, ?)";
-            SQLiteStatement sqLiteStatement = database.compileStatement(sqlString);
-            sqLiteStatement.bindString(1,foodName);
-            sqLiteStatement.bindString(2,foodPrice);
-            sqLiteStatement.bindString(3,foodCookingTime);
-            sqLiteStatement.bindString(4,foodCategory);
-            sqLiteStatement.bindString(5,foodDiscount);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-            byte[] bytes = outputStream.toByteArray();
-            sqLiteStatement.bindBlob(6,bytes);
-            sqLiteStatement.execute();
+                database = this.openOrCreateDatabase("FavFoods",MODE_PRIVATE,null);
+                database.execSQL("CREATE TABLE IF NOT EXISTS FavFoods (id INTEGER PRIMARY KEY,foodName VARCHAR, foodPrice VARCHAR, foodCookingTime VARCHAR, " +
+                        "foodCategory VARCHAR, foodDiscount VARCHAR, foodImage BLOB)");
 
 
-        } catch (Exception e) {
+                String sqlString = "INSERT INTO FavFoods (foodName, foodPrice, foodCookingTime, foodCategory, foodDiscount, foodImage) VALUES (?, ?, ?, ?, ?, ?)";
+                SQLiteStatement sqLiteStatement = database.compileStatement(sqlString);
+                sqLiteStatement.bindString(1,foodName);
+                sqLiteStatement.bindString(2,foodPrice);
+                sqLiteStatement.bindString(3,foodCookingTime);
+                sqLiteStatement.bindString(4,foodCategory);
+                sqLiteStatement.bindString(5,foodDiscount);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                byte[] bytes = outputStream.toByteArray();
+                sqLiteStatement.bindBlob(6,bytes);
+                sqLiteStatement.execute();
 
+
+            } catch (Exception e) {
+
+            }
+        } else {
+            Toast.makeText(DetailedItemActivity.this, "Cannot add to favourites without internet connection!", Toast.LENGTH_LONG).show();
         }
+
+
     }
 
     public void saveToFB(){
@@ -157,6 +166,13 @@ public class DetailedItemActivity extends AppCompatActivity {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(this.getContentResolver(), bitmap, "Title", null);
         return Uri.parse(path);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 
