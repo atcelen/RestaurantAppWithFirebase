@@ -116,6 +116,8 @@ public class FavouritesActivity extends AppCompatActivity {
                             @Override
                             public void onBitmapFailed(Exception e, Drawable errorDrawable) {
                                 e.printStackTrace();
+                                System.out.println("here!");
+
                             }
 
                             @Override

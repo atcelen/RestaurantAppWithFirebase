@@ -78,7 +78,38 @@ public class DetailedItemActivity extends AppCompatActivity {
 
     public void addToFavourites(View view) {
         offlineCache();
+        saveToFB();
+    }
 
+    public void offlineCache(){
+
+        try {
+
+            database = this.openOrCreateDatabase("FavFoods",MODE_PRIVATE,null);
+            database.execSQL("CREATE TABLE IF NOT EXISTS FavFoods (id INTEGER PRIMARY KEY,foodName VARCHAR, foodPrice VARCHAR, foodCookingTime VARCHAR, " +
+                    "foodCategory VARCHAR, foodDiscount VARCHAR, foodImage BLOB)");
+
+
+            String sqlString = "INSERT INTO FavFoods (foodName, foodPrice, foodCookingTime, foodCategory, foodDiscount, foodImage) VALUES (?, ?, ?, ?, ?, ?)";
+            SQLiteStatement sqLiteStatement = database.compileStatement(sqlString);
+            sqLiteStatement.bindString(1,foodName);
+            sqLiteStatement.bindString(2,foodPrice);
+            sqLiteStatement.bindString(3,foodCookingTime);
+            sqLiteStatement.bindString(4,foodCategory);
+            sqLiteStatement.bindString(5,foodDiscount);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            byte[] bytes = outputStream.toByteArray();
+            sqLiteStatement.bindBlob(6,bytes);
+            sqLiteStatement.execute();
+
+
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void saveToFB(){
         final Uri uri = getImageUriFromBitmap();
         storageReference.child("Images").child(foodName + ".jpg").putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -119,36 +150,6 @@ public class DetailedItemActivity extends AppCompatActivity {
                 Toast.makeText(DetailedItemActivity.this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }
         });
-
-
-    }
-
-    public void offlineCache(){
-
-        try {
-
-            database = this.openOrCreateDatabase("FavFoods",MODE_PRIVATE,null);
-            database.execSQL("CREATE TABLE IF NOT EXISTS FavFoods (id INTEGER PRIMARY KEY,foodName VARCHAR, foodPrice VARCHAR, foodCookingTime VARCHAR, " +
-                    "foodCategory VARCHAR, foodDiscount VARCHAR, foodImage BLOB)");
-
-
-            String sqlString = "INSERT INTO FavFoods (foodName, foodPrice, foodCookingTime, foodCategory, foodDiscount, foodImage) VALUES (?, ?, ?, ?, ?, ?)";
-            SQLiteStatement sqLiteStatement = database.compileStatement(sqlString);
-            sqLiteStatement.bindString(1,foodName);
-            sqLiteStatement.bindString(2,foodPrice);
-            sqLiteStatement.bindString(3,foodCookingTime);
-            sqLiteStatement.bindString(4,foodCategory);
-            sqLiteStatement.bindString(5,foodDiscount);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-            byte[] bytes = outputStream.toByteArray();
-            sqLiteStatement.bindBlob(6,bytes);
-            sqLiteStatement.execute();
-
-
-        } catch (Exception e) {
-
-        }
     }
 
     public Uri getImageUriFromBitmap() {
